@@ -38,14 +38,7 @@ public class ReadWebPage {
     }
     
     public static String getTextFromMarker(TypeMarker marker){
-        String markerStart = "<" +marker.toString().toLowerCase() +">";
-        String markerEnd = "</" +markerStart.substring(1);
-        
-        int start = WebPageFrame.getDocument().indexOf(markerStart);
-        start += markerStart.length();
-        int end = WebPageFrame.getDocument().indexOf(markerEnd);
-
-        return WebPageFrame.getDocument().substring(start, end);
+        return getTextFromMarkerFromPosition(marker, 0);
     }
     
     public static String getTextFromMarkerFromPosition(TypeMarker marker, int position){

@@ -1,22 +1,27 @@
 package scislak.program;
 
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 public class RSSFeedCreator {
 
     public static void main(String[] args) {
-        WebPageFrame frame = new WebPageFrame("Google");
-        RSSFeedCreator rss = new RSSFeedCreator();
-        rss.work(frame);
-        System.out.println(ReadWebPage.getTextFromMarker(ReadWebPage.TypeMarker.TITLE));
-    }
+        initLook();
+        new CreateRSSFrame();
+    }  
     
-    private void work(WebPageFrame frame){
+    private static void initLook(){
         try {
-            frame.setDocument(ReadWebPage.readHtmlToString("http://sebastianscislak.cba.pl/"));
-        } catch (IOException ex) {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(RSSFeedCreator.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            Logger.getLogger(RSSFeedCreator.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(RSSFeedCreator.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnsupportedLookAndFeelException ex) {
             Logger.getLogger(RSSFeedCreator.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
