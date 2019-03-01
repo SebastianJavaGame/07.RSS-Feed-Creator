@@ -12,6 +12,7 @@ public class WebPageFrame extends JFrame{
     
     public WebPageFrame(String title){
         super(title);
+        setVisible(true);
         init();
         addInside();
     }
@@ -29,6 +30,7 @@ public class WebPageFrame extends JFrame{
         area = new JTextArea();
         JScrollPane scrollPane = new JScrollPane(area);
         area.setLineWrap(true);
+        area.setEditable(false);
         add(scrollPane);
         validate();
     }
