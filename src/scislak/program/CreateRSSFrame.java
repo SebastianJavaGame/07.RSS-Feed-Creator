@@ -6,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.time.LocalDateTime;
@@ -15,7 +14,6 @@ import java.util.prefs.Preferences;
 import javax.swing.JButton;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -24,16 +22,19 @@ import javax.swing.text.JTextComponent;
 
 import scislak.page.MemoryInfos;
 import scislak.page.PageInfo;
+import scislak.saveData.ObjectToFile;
 
 public class CreateRSSFrame extends javax.swing.JFrame {
 
-	private static final long serialVersionUID = 1L;
-	private JMenuBar jMenuBar2;
+    private static final long serialVersionUID = 1L;
+    private JMenuBar jMenuBar2;
     private JMenu jMenu1;
     private JMenu jMenu2;
     private JMenuBar jMenuBar1;
     private JMenu jMenu3;
     private JMenu jMenu4;
+    
+    private int listIndex;
 
     /**
      * Creates new form NewJFrame
@@ -42,7 +43,17 @@ public class CreateRSSFrame extends javax.swing.JFrame {
         super("RSS Feed Creator");
         this.setVisible(true);
         this.setMinimumSize(new Dimension(610, 640));
-        initComponents();
+        initComponents();  
+        initTable();
+    }
+    
+    private void initTable(){
+        MemoryInfos.setINFOS(ObjectToFile.readObjectFromFile());
+        DefaultTableModel model = (DefaultTableModel)jTable1.getModel();
+        
+        for(int i =0; i <MemoryInfos.getINFOS().size(); i++){
+            model.addRow(new Object[]{MemoryInfos.getINFOS().get(i).getTitle(), MemoryInfos.getINFOS().get(i).getDate()});
+        }
     }
                          
     private void initComponents() {
@@ -691,6 +702,7 @@ public class CreateRSSFrame extends javax.swing.JFrame {
             	MemoryInfos.setWebmaster(jTextField5.getText());
             	MemoryInfos.setDescription(jTextArea2.getText());
                 MemoryInfos.saveToPreference();
+                ObjectToFile.writeObjectToFile(MemoryInfos.getINFOS());
                 e.getWindow().dispose();
             }
         });
@@ -701,18 +713,20 @@ public class CreateRSSFrame extends javax.swing.JFrame {
 			
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				System.out.println(list.getLeadSelectionIndex());
-				PageInfo page = MemoryInfos.getINFOS().get(list.getLeadSelectionIndex());
-				jTextField16.setText(page.getTitle());
-				jTextField15.setText(page.getLink());
-				jTextField14.setText(page.getCategory());
-				jTextField13.setText(page.getComments());
-				jTextField12.setText(page.getAuthor());
-				String[] data = page.getDate().split(" ");
-				jComboBox2.setSelectedItem(data[0]);
-				jComboBox3.setSelectedItem(data[1]);
-				jComboBox4.setSelectedItem(data[2]);
-				jTextArea1.setText(page.getDescription());
+                            if(MemoryInfos.getINFOS().size() < 1)
+                                return;
+                            
+                            listIndex = list.getLeadSelectionIndex();
+                            PageInfo page = MemoryInfos.getINFOS().get(list.getLeadSelectionIndex());
+                            jTextField16.setText(page.getTitle());
+                            jTextField15.setText(page.getLink());
+                            jTextField14.setText(page.getCategory());
+                            jTextField13.setText(page.getComments());
+                            jTextField12.setText(page.getAuthor());
+                            String[] data = page.getDate().split(" ");
+                            jComboBox2.setSelectedItem(data[0]);
+                            jComboBox3.setSelectedItem(data[1]);
+                            jComboBox4.setSelectedItem(data[2]);				jTextArea1.setText(page.getDescription());
 			}
 		});
     }
@@ -723,34 +737,70 @@ public class CreateRSSFrame extends javax.swing.JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(validateRequireMessageFields()){
-	                DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-	                PageInfo message = new  PageInfo();
-					message.setTitle(jTextField16.getText());
-					message.setLink(jTextField15.getText());
-					message.setCategory(jTextField14.getText());
-					message.setComments(jTextField13.getText());
-					message.setAuthor(jTextField12.getText());
-					message.setDate(jComboBox2.getSelectedItem().toString() +" " +jComboBox3.getSelectedItem().toString() +" " +jComboBox4.getSelectedItem().toString());					
-					message.setDescription(jTextArea1.getText());
-					model.addRow(new Object[]{message.getTitle(), message.getDate().toString()});					
-					MemoryInfos.addToMemory(message);
-					System.out.println("ggg" +MemoryInfos.getINFOS().size());  
-				
+                                    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+                                    PageInfo message = new  PageInfo();
+                                    message.setTitle(jTextField16.getText());
+                                    message.setLink(jTextField15.getText());
+                                    message.setCategory(jTextField14.getText());
+                                    message.setComments(jTextField13.getText());
+                                    message.setAuthor(jTextField12.getText());
+                                    message.setDate(jComboBox2.getSelectedItem().toString() +" " +jComboBox3.getSelectedItem().toString() +" " +jComboBox4.getSelectedItem().toString());					
+                                    message.setDescription(jTextArea1.getText());
+                                    model.addRow(new Object[]{message.getTitle(), message.getDate().toString()});					
+                                    MemoryInfos.addToMemory(message);
+                                    listIndex = MemoryInfos.getINFOS().size()-1;
+                                    jTable1.setRowSelectionInterval(listIndex, listIndex);
+                                    setBlackFont();
 				}
 			}
 		});
     }
     
     private void addListenerDeleteMessage(JButton button){
-        
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(listIndex >= 0){
+                    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+                    model.removeRow(listIndex);
+                    MemoryInfos.removeObject(listIndex);
+                    listIndex = MemoryInfos.getINFOS().size()-1;
+                    jTable1.setRowSelectionInterval(listIndex, listIndex);
+                }
+            }
+        });
     }
     
     private void addListenerMoveUp(JButton button){
-        
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(listIndex > 0){
+                    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+                    PageInfo temporary = MemoryInfos.getINFOS().get(listIndex-1);
+                    MemoryInfos.getINFOS().set(listIndex-1, MemoryInfos.getINFOS().get(listIndex));
+                    MemoryInfos.getINFOS().set(listIndex, temporary);
+                    model.moveRow(listIndex, listIndex, listIndex-1);
+                    jTable1.setRowSelectionInterval(listIndex-1, listIndex-1);
+                }
+            }
+        });
     }
     
     private void addListenerMoveDown(JButton button){
-        
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(MemoryInfos.getINFOS().size()-1 > listIndex){
+                    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+                    PageInfo temporary = MemoryInfos.getINFOS().get(listIndex+1);
+                    MemoryInfos.getINFOS().set(listIndex+1, MemoryInfos.getINFOS().get(listIndex));
+                    MemoryInfos.getINFOS().set(listIndex, temporary);
+                    model.moveRow(listIndex, listIndex, listIndex+1);
+                    jTable1.setRowSelectionInterval(listIndex+1, listIndex+1);
+                }
+            }
+        });
     }
     
     private void addListenerSaveRSSFeedFile(JButton button){
@@ -823,6 +873,12 @@ public class CreateRSSFrame extends javax.swing.JFrame {
 	            }
 			});
     	}
+    }
+        
+    private void setBlackFont(){
+        jTextField16.setForeground(Color.black);
+        jTextField15.setForeground(Color.black);
+        jTextArea1.setForeground(Color.black);
     }
     
     // Variables declaration - do not modify  

@@ -1,6 +1,8 @@
 package scislak.page;
 
-public class PageInfo {
+import java.io.Serializable;
+
+public class PageInfo implements Serializable{
     private String title;
     private String link;
     private String category;

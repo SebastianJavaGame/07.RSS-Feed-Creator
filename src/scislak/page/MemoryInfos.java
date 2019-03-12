@@ -31,6 +31,10 @@ public class MemoryInfos {
         getINFOS().add(page);
     }
     
+    public static void removeObject(int index){
+        getINFOS().remove(index);
+    }
+    
     public static void saveToPreference() {
     	Preferences prefs = Preferences.userRoot().node(NAME_PREFERENCE);
     	prefs.put(TITLE, title);
