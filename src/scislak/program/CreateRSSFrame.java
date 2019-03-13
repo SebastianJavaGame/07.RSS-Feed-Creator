@@ -8,7 +8,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 
 import javax.swing.JButton;
@@ -19,6 +23,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+import scislak.file.SaveXMLFile;
 
 import scislak.page.MemoryInfos;
 import scislak.page.PageInfo;
@@ -44,7 +51,7 @@ public class CreateRSSFrame extends javax.swing.JFrame {
         this.setVisible(true);
         this.setMinimumSize(new Dimension(610, 640));
         initComponents();  
-        initTable();
+        initTable(); 
     }
     
     private void initTable(){
@@ -87,7 +94,7 @@ public class CreateRSSFrame extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
-        jTextField10 = new javax.swing.JTextField();
+        jTextField10 = new javax.swing.JComboBox<>();
         jTextField11 = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
         jButton2 = new javax.swing.JButton();
@@ -141,7 +148,7 @@ public class CreateRSSFrame extends javax.swing.JFrame {
         
         addListenerClosingFrame();
         
-        addListenerClearField(new JTextComponent[]{jTextField1, jTextField2, jTextField3, jTextField4, jTextField5, jTextField6, jTextField7, jTextField8, jTextField9, jTextField10, jTextField11, jTextField12, jTextField13, jTextField14,
+        addListenerClearField(new JTextComponent[]{jTextField1, jTextField2, jTextField3, jTextField4, jTextField5, jTextField6, jTextField7, jTextField8, jTextField9, jTextField11, jTextField12, jTextField13, jTextField14,
         										jTextField15, jTextField16, jTextField17, jTextField18, jTextArea1, jTextArea2});
 
         jMenu1.setText("File");
@@ -256,11 +263,11 @@ public class CreateRSSFrame extends javax.swing.JFrame {
 
         jLabel10.setText("Width");
 
-        jTextField7.setText("jTextField7");
+        jTextField7.setText(prefs.get(MemoryInfos.URL_IMAGE, ""));
 
-        jTextField8.setText("jTextField8");
+        jTextField8.setText(prefs.get(MemoryInfos.WIDTH_IMAGE, ""));
 
-        jTextField9.setText("jTextField9");
+        jTextField9.setText(prefs.get(MemoryInfos.HEIGHT_IMAGE, ""));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -277,8 +284,8 @@ public class CreateRSSFrame extends javax.swing.JFrame {
                     .addComponent(jTextField7)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jTextField8, 50, javax.swing.GroupLayout.DEFAULT_SIZE, 50)
+                            .addComponent(jTextField9, 50, javax.swing.GroupLayout.DEFAULT_SIZE, 50))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -306,9 +313,10 @@ public class CreateRSSFrame extends javax.swing.JFrame {
 
         jLabel12.setText("Link");
 
-        jTextField10.setText("jTextField10");
-
-        jTextField11.setText("jTextField11");
+        jTextField10.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "text/xsl", "text/css"}));
+        jTextField10.setSelectedItem(prefs.get(MemoryInfos.TYPE, ""));
+        
+        jTextField11.setText(prefs.get(MemoryInfos.LINK_TYPE, ""));
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -633,8 +641,10 @@ public class CreateRSSFrame extends javax.swing.JFrame {
         jTabbedPane1.addTab("Advanced", jPanel7);
 
         jButton1.setText("Save RSS Feed file");
+        addListenerSaveRSSFeedFile(jButton1);
 
         jButton6.setText("Preview .xml file");
+        addListenerPreview(jButton6);
 
         jMenu3.setText("File");
         jMenuBar2.add(jMenu3);
@@ -684,7 +694,6 @@ public class CreateRSSFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTabbedPane1))
         );
-
         pack();
     }// </editor-fold>                           
 
@@ -701,6 +710,11 @@ public class CreateRSSFrame extends javax.swing.JFrame {
             	MemoryInfos.setEditor(jTextField4.getText());
             	MemoryInfos.setWebmaster(jTextField5.getText());
             	MemoryInfos.setDescription(jTextArea2.getText());
+                MemoryInfos.setUrlImage(jTextField7.getText());
+                MemoryInfos.setWidthImage(jTextField8.getText());
+                MemoryInfos.setHeightImage(jTextField9.getText());
+                MemoryInfos.setType(jTextField10.getSelectedItem().toString());
+                MemoryInfos.setLinkType(jTextField11.getText());
                 MemoryInfos.saveToPreference();
                 ObjectToFile.writeObjectToFile(MemoryInfos.getINFOS());
                 e.getWindow().dispose();
@@ -814,7 +828,15 @@ public class CreateRSSFrame extends javax.swing.JFrame {
     private void addListenerPreview(JButton button){
         button.addActionListener((ActionEvent e) -> {
             if(validateRequireFeedFields()){
-                WebPageFrame web = new WebPageFrame("Preview XML");
+                try {
+                    MemoryInfos.setType(jTextField10.getSelectedItem().toString());
+                    MemoryInfos.setLinkType(jTextField11.getText());
+                    WebPageFrame web = new WebPageFrame("Preview XML", SaveXMLFile.createXMLDocument());
+                } catch (ParserConfigurationException | FileNotFoundException | XMLStreamException ex) {
+                    Logger.getLogger(CreateRSSFrame.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(CreateRSSFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
@@ -937,7 +959,7 @@ public class CreateRSSFrame extends javax.swing.JFrame {
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextArea jTextArea2;
     private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField10;
+    private javax.swing.JComboBox<String> jTextField10;
     private javax.swing.JTextField jTextField11;
     private javax.swing.JTextField jTextField12;
     private javax.swing.JTextField jTextField13;

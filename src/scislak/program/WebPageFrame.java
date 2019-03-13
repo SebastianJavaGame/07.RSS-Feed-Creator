@@ -1,6 +1,7 @@
 package scislak.program;
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -10,11 +11,12 @@ import javax.swing.JTextArea;
 public class WebPageFrame extends JFrame{
     private static JTextArea area;
     
-    public WebPageFrame(String title){
+    public WebPageFrame(String title, String document){
         super(title);
         setVisible(true);
         init();
         addInside();
+        setDocument(document);
     }
     
     private void init(){
@@ -31,6 +33,7 @@ public class WebPageFrame extends JFrame{
         JScrollPane scrollPane = new JScrollPane(area);
         area.setLineWrap(true);
         area.setEditable(false);
+        area.setFont(new Font(area.getFont().getFamily(), Font.PLAIN, 11));
         add(scrollPane);
         validate();
     }

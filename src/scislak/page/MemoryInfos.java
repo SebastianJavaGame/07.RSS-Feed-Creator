@@ -5,15 +5,20 @@ import java.util.List;
 import java.util.prefs.Preferences;
 
 public class MemoryInfos {
-	public static final String NAME_PREFERENCE = "MemoryInfos";
-	public static final String TITLE = "title";
-	public static final String LINK = "link";
-	public static final String AUTHOR = "author";
-	public static final String LANGUAGE = "language";
-	public static final String EDITOR = "editor";
-	public static final String WEBMASTER = "webmaster";
-	public static final String DATE = "date";
-	public static final String DESCRIPTION = "description";
+    public static final String NAME_PREFERENCE = "MemoryInfos";
+    public static final String TITLE = "title";
+    public static final String LINK = "link";
+    public static final String AUTHOR = "author";
+    public static final String LANGUAGE = "language";
+    public static final String EDITOR = "editor";
+    public static final String WEBMASTER = "webmaster";
+    public static final String DATE = "date";
+    public static final String DESCRIPTION = "description";
+    public static final String URL_IMAGE = "urlImage";
+    public static final String WIDTH_IMAGE = "widthImage";
+    public static final String HEIGHT_IMAGE = "heightImage";
+    public static final String TYPE = "type";
+    public static final String LINK_TYPE = "linkType";
 	
     private static List<PageInfo> INFOS = new ArrayList<PageInfo>();
     private static String title;    
@@ -24,6 +29,11 @@ public class MemoryInfos {
     private static String webmaster;
     private static String date;
     private static String description;
+    private static String urlImage;
+    private static String widthImage;
+    private static String heightImage;
+    private static String type;
+    private static String linkType;
     
     private MemoryInfos(){}
     
@@ -44,6 +54,11 @@ public class MemoryInfos {
     	prefs.put(EDITOR, editor);
     	prefs.put(WEBMASTER, webmaster);
     	prefs.put(DESCRIPTION, description);
+        prefs.put(URL_IMAGE, urlImage);
+        prefs.put(WIDTH_IMAGE, widthImage);
+        prefs.put(HEIGHT_IMAGE, heightImage);
+        prefs.put(TYPE, type);
+        prefs.put(LINK_TYPE, linkType);
     }
 
     public static List<PageInfo> getINFOS() {
@@ -117,4 +132,44 @@ public class MemoryInfos {
 	public static void setWebmaster(String webmaster) {
 		MemoryInfos.webmaster = webmaster;
 	}
+
+    public static String getUrlImage() {
+        return urlImage;
+    }
+
+    public static void setUrlImage(String urlImage) {
+        MemoryInfos.urlImage = urlImage;
+    }
+
+    public static String getWidthImage() {
+        return widthImage;
+    }
+
+    public static void setWidthImage(String widthImage) {
+        MemoryInfos.widthImage = widthImage;
+    }
+
+    public static String getHeightImage() {
+        return heightImage;
+    }
+
+    public static void setHeightImage(String heightImage) {
+        MemoryInfos.heightImage = heightImage;
+    }
+
+    public static String getType() {
+        return type;
+    }
+
+    public static void setType(String type) {
+        MemoryInfos.type = type;
+    }
+
+    public static String getLinkType() {
+        return linkType;
+    }
+
+    public static void setLinkType(String linkType) {
+        MemoryInfos.linkType = linkType;
+    }
 }
