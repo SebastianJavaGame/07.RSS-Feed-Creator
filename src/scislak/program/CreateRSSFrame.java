@@ -34,18 +34,12 @@ import scislak.saveData.ObjectToFile;
 public class CreateRSSFrame extends javax.swing.JFrame {
 
     private static final long serialVersionUID = 1L;
-    private JMenuBar jMenuBar2;
     private JMenu jMenu1;
     private JMenu jMenu2;
-    private JMenuBar jMenuBar1;
     private JMenu jMenu3;
-    private JMenu jMenu4;
-    
+    private JMenu jMenu4;  
     private int listIndex;
 
-    /**
-     * Creates new form NewJFrame
-     */
     public CreateRSSFrame() {
         super("RSS Feed Creator");
         this.setVisible(true);
@@ -64,8 +58,6 @@ public class CreateRSSFrame extends javax.swing.JFrame {
     }
                          
     private void initComponents() {
-
-        jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
         jPanel1 = new javax.swing.JPanel();
@@ -140,7 +132,6 @@ public class CreateRSSFrame extends javax.swing.JFrame {
         jCheckBox1 = new javax.swing.JCheckBox();
         jButton1 = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
-        jMenuBar2 = new javax.swing.JMenuBar();
         jMenu3 = new javax.swing.JMenu();
         jMenu4 = new javax.swing.JMenu();
         
@@ -150,12 +141,6 @@ public class CreateRSSFrame extends javax.swing.JFrame {
         
         addListenerClearField(new JTextComponent[]{jTextField1, jTextField2, jTextField3, jTextField4, jTextField5, jTextField6, jTextField7, jTextField8, jTextField9, jTextField11, jTextField12, jTextField13, jTextField14,
         										jTextField15, jTextField16, jTextField17, jTextField18, jTextArea1, jTextArea2});
-
-        jMenu1.setText("File");
-        jMenuBar1.add(jMenu1);
-
-        jMenu2.setText("Edit");
-        jMenuBar1.add(jMenu2);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -646,14 +631,6 @@ public class CreateRSSFrame extends javax.swing.JFrame {
         jButton6.setText("Preview .xml file");
         addListenerPreview(jButton6);
 
-        jMenu3.setText("File");
-        jMenuBar2.add(jMenu3);
-
-        jMenu4.setText("Edit");
-        jMenuBar2.add(jMenu4);
-
-        setJMenuBar(jMenuBar2);
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -817,10 +794,31 @@ public class CreateRSSFrame extends javax.swing.JFrame {
         });
     }
     
+    private void loadFields(){
+        MemoryInfos.setType(jTextField10.getSelectedItem().toString());
+        MemoryInfos.setLinkType(jTextField11.getText());
+        MemoryInfos.setTitle(jTextField2.getText());
+        MemoryInfos.setLink(jTextField1.getText());
+        MemoryInfos.setDescription(jTextArea2.getText());
+        MemoryInfos.setLanguage(jComboBox1.getSelectedItem().toString());
+        MemoryInfos.setEditor(jTextField4.getText());
+        MemoryInfos.setWebmaster(jTextField5.getText());
+        MemoryInfos.setAuthor(jTextField3.getText());
+        MemoryInfos.setUrlImage(jTextField7.getText());
+        MemoryInfos.setWidthImage(jTextField8.getText());
+        MemoryInfos.setHeightImage(jTextField9.getText());
+                    
+    }
+    
     private void addListenerSaveRSSFeedFile(JButton button){
         button.addActionListener((ActionEvent e) -> {
             if(validateRequireFeedFields()){
-               
+                try {
+                    loadFields();
+                    SaveXMLFile.saveXMLFile();
+                } catch (IOException | ParserConfigurationException | XMLStreamException ex) {
+                    Logger.getLogger(CreateRSSFrame.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
@@ -829,8 +827,7 @@ public class CreateRSSFrame extends javax.swing.JFrame {
         button.addActionListener((ActionEvent e) -> {
             if(validateRequireFeedFields()){
                 try {
-                    MemoryInfos.setType(jTextField10.getSelectedItem().toString());
-                    MemoryInfos.setLinkType(jTextField11.getText());
+                    loadFields();
                     WebPageFrame web = new WebPageFrame("Preview XML", SaveXMLFile.createXMLDocument());
                 } catch (ParserConfigurationException | FileNotFoundException | XMLStreamException ex) {
                     Logger.getLogger(CreateRSSFrame.class.getName()).log(Level.SEVERE, null, ex);
